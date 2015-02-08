@@ -1,6 +1,95 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <TextView
+        android:text="MDF3 MUSIC PLAYER"
+        android:textColor="#FF0000"
+        android:id="@+id/artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12pt"
+        android:gravity="center"
+        android:layout_weight=".01"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight=".6"
+        android:id="@+id/image"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:hint="Artist"
+        android:id="@+id/artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12pt"
+        android:gravity="center"
+        android:layout_weight=".01"/>
+
+    <TextView
+        android:hint="Song"
+        android:id="@+id/song"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_weight=".05"/>
+
+    <TextView
+        android:id="@+id/spacer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_weight=".25"/>
+
+
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="|<<"
+            android:layout_gravity="center"
+            android:id="@+id/previous"
+            android:textSize="12pt"
+            android:enabled="true" />
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="|>"
+            android:textSize="12pt"
+            android:id="@+id/play"/>
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="[]"
+            android:textSize="12pt"
+            android:id="@+id/stop"/>
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text=">>|"
+            android:layout_gravity="center"
+            android:id="@+id/next"
+            android:textSize="12pt"
+            android:enabled="true" />
+
+
+
+
+    </LinearLayout>
+
+
 
 </LinearLayout>
