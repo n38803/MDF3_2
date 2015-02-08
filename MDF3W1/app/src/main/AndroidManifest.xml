@@ -16,6 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name="fullsail.com.mdf3w1.PlayerService"
+            android:exported="false" />
     </application>
 
 </manifest>
