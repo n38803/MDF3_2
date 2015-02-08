@@ -24,6 +24,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     boolean mActivityResumed;
     boolean mPrepared;
     int mAudioPosition;
+    int currentSong;
 
     @Override
     public void onCreate() {
@@ -31,12 +32,12 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         mPrepared = mActivityResumed = false;
         mAudioPosition = 0;
+        currentSong = 0;
 
         Log.i(TAG, "onCreate - Service");
 
 
     }
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -50,23 +51,42 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
 
+
+    // --[ UI CONTROL METHODS ---------------------------
+
+    protected void onForward(){
+        if(currentSong < 2 && currentSong <= 0){
+            onStop();
+            currentSong++;
+            onResume();
+        }
+    }
+
     protected void onStart() {
         Log.i(TAG, "STATE CHECK - onStart");
+
+
+        // Create custom objects & assign information
+        PlayerClass song1 = new PlayerClass("Echoes of Aeons", "New Life", ("android.resource://" + getPackageName() + "/" + R.raw.newlife));
+        PlayerClass song2 = new PlayerClass("Echoes of Aeons", "Serenity", ("android.resource://" + getPackageName() + "/" + R.raw.serenity));
+        PlayerClass song3 = new PlayerClass("Echoes of Aeons", "Aerials", ("android.resource://" + getPackageName() + "/" + R.raw.aerials));
+
+        // Store objects into array
+        PlayerClass playlist [] = {song1, song2, song3};
 
         // Build foreground notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.headphone);
 
-        // TODO - SET DYNAMIC ASSIGNMENT OF ARTIST & SONG
-        builder.setContentTitle("ARTIST NAME HERE");
-        builder.setContentText("Song Title Here");
+        // Set notification text dynamically based on array position
+        builder.setContentTitle(playlist[currentSong].getArtist());
+        builder.setContentText(playlist[currentSong].getTitle());
 
         builder.setAutoCancel(false);
         builder.setOngoing(true);
         startForeground(FOREGROUND_NOTIFICATION, builder.build());
 
-
-
+        // verify state/existence of mediaplayer via conditional
         if(mediaPlayer == null) {
 
             // create media player
@@ -74,18 +94,21 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setOnPreparedListener(this);
 
+            // assign current song to position 0
+            currentSong = 0;
+
+
             // TODO - MAKE ASSIGNMENT OF SONG DYNAMIC
 
-            // TODO - Create custom object & store song information
 
 
             // grab data source for media player to play
             try {
-                mediaPlayer.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.aerials));
+                mediaPlayer.setDataSource(this, Uri.parse(playlist[currentSong].getFile()));
                 onResume();
 
             } catch(IOException e) {
-                Log.e(TAG, "--> PLAYER RELEASED <--");
+                Log.e(TAG, "MEDIA ERROR");
                 e.printStackTrace();
 
                 mediaPlayer.release();
@@ -94,9 +117,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
 
     }
-
-
-
 
     protected void onResume() {
 
@@ -110,7 +130,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             mediaPlayer.start();
         }
     }
-
 
     protected void onPause() {
 
@@ -134,6 +153,21 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
+    protected void onBack(){
+        if(currentSong > 0 && currentSong <= 2){
+            onStop();
+            currentSong--;
+            onResume();
+        }
+    }
+
+
+    // --------------------------------------------------
+
+
+
+
+    // --[ STATE IDENTIFIERS ----------------------------
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -155,6 +189,12 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
+    // --------------------------------------------------
+
+
+
+
+    // --[ SERVICE BINDER -------------------------------
     @Override
     public IBinder onBind(Intent intent) {
 
@@ -162,5 +202,27 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         return null;
     }
+
+    // --------------------------------------------------
+
+
+    // --[ FRAGMENT COMMUNICATION METHODS ---------------
+    public String getArtist(){
+
+        String artist = "";
+
+        return artist;
+    }
+
+    public String getTitle(){
+
+        String title = "";
+
+        return title;
+    }
+
+    // --------------------------------------------------
+
+
 
 }

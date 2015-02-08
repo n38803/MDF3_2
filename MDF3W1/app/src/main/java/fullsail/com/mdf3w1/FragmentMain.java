@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 /**
  * Created by shaunthompson on 2/8/15.
@@ -24,6 +25,8 @@ public class FragmentMain extends Fragment implements ServiceConnection {
     ImageButton stop;
     ImageButton forward;
     ImageButton back;
+
+    PlayerService pService;
 
 
     public static FragmentMain newInstance() {
@@ -67,13 +70,58 @@ public class FragmentMain extends Fragment implements ServiceConnection {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
 
-        // Assign button references
+        // assign button references
         play    = (ImageButton) getActivity().findViewById(R.id.play);
         stop    = (ImageButton) getActivity().findViewById(R.id.stop);
         forward = (ImageButton) getActivity().findViewById(R.id.forward);
         back    = (ImageButton) getActivity().findViewById(R.id.back);
 
-        // TODO - assign textviews
+        // assign textview references
+        final TextView artist = (TextView) getActivity().findViewById(R.id.artist);
+        final TextView title = (TextView) getActivity().findViewById(R.id.title);
+
+        play.setOnClickListener(
+                new Button.OnClickListener() {
+                    public void onClick(View v) {
+                        pService.onStart();
+                        artist.setText(pService.getArtist());
+                        title.setText(pService.getTitle());
+                    }
+                }
+        );
+
+        stop.setOnClickListener(
+                new Button.OnClickListener() {
+                    public void onClick(View v) {
+                        pService.onStop();
+                    }
+                }
+        );
+
+        forward.setOnClickListener(
+                new Button.OnClickListener() {
+                    public void onClick(View v) {
+                        pService.onForward();
+                        artist.setText(pService.getArtist());
+                        title.setText(pService.getTitle());
+                    }
+                }
+        );
+
+        back.setOnClickListener(
+                new Button.OnClickListener() {
+                    public void onClick(View v) {
+                        pService.onBack();
+                        artist.setText(pService.getArtist());
+                        title.setText(pService.getTitle());
+                    }
+                }
+        );
+
+
+
+
+
 
         // TODO - set onClick listeners for buttons
 
@@ -81,6 +129,8 @@ public class FragmentMain extends Fragment implements ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
+
+        // TODO - SET UI responses to binder
 
     }
 }
