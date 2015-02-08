@@ -23,10 +23,11 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
 
     MediaPlayer mediaPlayer;
+    boolean idleState;
     boolean mActivityResumed;
     boolean mPrepared;
-    int mAudioPosition;
     int currentSong;
+    int currentPosition;
 
     // --[ SERVICE BINDER -------------------------------
 
@@ -61,8 +62,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         super.onCreate();
 
         mPrepared = mActivityResumed = false;
-        mAudioPosition = 0;
+        currentPosition = 0;
         currentSong = 0;
+        idleState = false;
 
         Log.i(TAG, "onCreate - Service");
 
@@ -74,7 +76,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         Log.i(TAG, "onStartCommand - Service");
 
-        onStart();
+        onPlay();
 
 
         return Service.START_STICKY;
@@ -88,14 +90,14 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         Log.i(TAG, "STATE CHECK - onForward");
 
         if(currentSong < 2 && currentSong <= 0){
-            onStop();
+            resetState();
             currentSong++;
             onResume();
         }
     }
 
-    protected void onStart() {
-        Log.i(TAG, "STATE CHECK - onStart");
+    protected void onPlay() {
+        Log.i(TAG, "STATE CHECK - onPlay");
 
 
         // Create custom objects & assign information
@@ -129,23 +131,47 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             // assign current song to position 0
             currentSong = 0;
 
-
-            // TODO - MAKE ASSIGNMENT OF SONG DYNAMIC
-
-
-
             // grab data source for media player to play
             try {
                 mediaPlayer.setDataSource(this, Uri.parse(playlist[currentSong].getFile()));
                 onResume();
+            }
 
-            } catch(IOException e) {
+            catch(IOException e) {
                 Log.e(TAG, "MEDIA ERROR");
                 e.printStackTrace();
 
                 mediaPlayer.release();
                 mediaPlayer = null;
             }
+
+
+        }
+        else if (mediaPlayer != null && idleState == false){
+            if(mediaPlayer.isPlaying()){
+                onPause();
+            }
+            else if (!mediaPlayer.isPlaying()){
+                onResume();
+            }
+        }
+
+        // grab data source for media player to resume
+        else if (mediaPlayer != null && idleState == true){
+            try {
+                mediaPlayer.setDataSource(this, Uri.parse(playlist[currentSong].getFile()));
+                idleState = false;
+                onResume();
+            }
+
+            catch(IOException e) {
+                Log.e(TAG, "MEDIA ERROR");
+                e.printStackTrace();
+
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+
         }
 
     }
@@ -154,10 +180,15 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         Log.i(TAG, "STATE CHECK - onResume");
 
         mActivityResumed = true;
+
+        // if player exists but is not prepared
         if(mediaPlayer != null && !mPrepared) {
             mediaPlayer.prepareAsync();
-        } else if(mediaPlayer != null && mPrepared) {
-            mediaPlayer.seekTo(mAudioPosition);
+        }
+
+        // if player exists and is prepared
+        else if(mediaPlayer != null && mPrepared) {
+            mediaPlayer.seekTo(currentPosition);
             mediaPlayer.start();
         }
     }
@@ -168,7 +199,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         mActivityResumed = false;
 
         if(mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
+            mediaPlayer.pause(); // set mediaplayer to pause.
+            currentPosition = mediaPlayer.getCurrentPosition(); // grab current position of song
+            stopForeground(true); // only show notification when song is playing
         }
     }
 
@@ -177,8 +210,12 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
 
         if(mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mPrepared = false;
+            mediaPlayer.stop(); // stop media from playing
+            mPrepared = false; // boolean for state conditional
+            idleState = false; // boolean for state conditional
+            currentPosition = 0; // reset position int to start from beginning
+            stopForeground(true); // only show notification when song is playing
+
         }
     }
 
@@ -186,9 +223,21 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         Log.i(TAG, "STATE CHECK - onBack");
 
         if(currentSong > 0 && currentSong <= 2){
-            onStop();
-            currentSong--;
-            onResume();
+            resetState(); // place mediaplayer into idle & reset song position
+            currentSong--; // move backwards 1 position in array
+            onResume(); // resume media playback
+        }
+    }
+
+    protected void resetState() {
+        if(mediaPlayer != null) {
+
+            currentPosition = 0; // set current song position to 0
+            mediaPlayer.reset(); // reset mediaplayer
+            mPrepared = false; // boolean for prepared state
+            idleState = true; // identifier for idle state
+
+
         }
     }
 
@@ -215,7 +264,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         mPrepared = true;
 
         if(mediaPlayer != null && mActivityResumed) {
-            mediaPlayer.seekTo(mAudioPosition);
+            mediaPlayer.seekTo(currentPosition);
             mediaPlayer.start();
         }
     }

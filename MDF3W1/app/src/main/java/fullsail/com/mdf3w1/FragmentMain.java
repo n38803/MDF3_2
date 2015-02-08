@@ -91,7 +91,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
                 new Button.OnClickListener() {
                     public void onClick(View v) {
                         Log.i("BUTTON CLICK", "--> PLAY");
-                        pService.onStart();
+                        pService.onPlay();
                         artist.setText(pService.getArtist());
                         title.setText(pService.getTitle());
                     }
