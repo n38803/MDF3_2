@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Binder;
 import android.support.v4.app.NotificationCompat;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,6 +21,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     final String TAG = "MediaPlayer";
 
+    IBinder mBinder = new LocalBinder();
     MediaPlayer mediaPlayer;
     boolean mActivityResumed;
     boolean mPrepared;
@@ -55,6 +57,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     // --[ UI CONTROL METHODS ---------------------------
 
     protected void onForward(){
+        Log.i(TAG, "STATE CHECK - onForward");
+
         if(currentSong < 2 && currentSong <= 0){
             onStop();
             currentSong++;
@@ -119,8 +123,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     protected void onResume() {
-
-        Log.i(TAG, "onResume");
+        Log.i(TAG, "STATE CHECK - onResume");
 
         mActivityResumed = true;
         if(mediaPlayer != null && !mPrepared) {
@@ -132,8 +135,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     protected void onPause() {
-
-        Log.i(TAG, "onPause");
+        Log.i(TAG, "STATE CHECK - onPause");
 
         mActivityResumed = false;
 
@@ -143,8 +145,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     protected void onStop() {
-
-        Log.e(TAG, "onStop");
+        Log.i(TAG, "STATE CHECK - onPause");
 
 
         if(mediaPlayer != null && mediaPlayer.isPlaying()) {
@@ -154,6 +155,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     protected void onBack(){
+        Log.i(TAG, "STATE CHECK - onBack");
+
         if(currentSong > 0 && currentSong <= 2){
             onStop();
             currentSong--;
@@ -195,6 +198,13 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
 
     // --[ SERVICE BINDER -------------------------------
+
+    public class LocalBinder extends Binder {
+        public PlayerService getService() {
+            return PlayerService.this;
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
 
@@ -202,6 +212,15 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         return null;
     }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+
+
+
+        return super.onUnbind(intent);
+    }
+
 
     // --------------------------------------------------
 

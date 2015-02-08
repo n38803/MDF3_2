@@ -6,8 +6,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,9 @@ public class FragmentMain extends Fragment implements ServiceConnection {
     ImageButton back;
 
     PlayerService pService;
+    boolean pBound;
+
+
 
 
     public static FragmentMain newInstance() {
@@ -69,6 +74,12 @@ public class FragmentMain extends Fragment implements ServiceConnection {
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.i("Main_Activity", "Service Connected");
+
+        // create binder
+        PlayerService.LocalBinder binder = (PlayerService.LocalBinder)service;
+        pService = binder.getService();
+        pBound = true;
 
         // assign button references
         play    = (ImageButton) getActivity().findViewById(R.id.play);
@@ -83,6 +94,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         play.setOnClickListener(
                 new Button.OnClickListener() {
                     public void onClick(View v) {
+                        Log.i("BUTTON CLICK", "--> PLAY");
                         pService.onStart();
                         artist.setText(pService.getArtist());
                         title.setText(pService.getTitle());
@@ -93,6 +105,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         stop.setOnClickListener(
                 new Button.OnClickListener() {
                     public void onClick(View v) {
+                        Log.i("BUTTON CLICK", "--> Stop");
                         pService.onStop();
                     }
                 }
@@ -101,6 +114,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         forward.setOnClickListener(
                 new Button.OnClickListener() {
                     public void onClick(View v) {
+                        Log.i("BUTTON CLICK", "--> FWD");
                         pService.onForward();
                         artist.setText(pService.getArtist());
                         title.setText(pService.getTitle());
@@ -111,6 +125,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         back.setOnClickListener(
                 new Button.OnClickListener() {
                     public void onClick(View v) {
+                        Log.i("BUTTON CLICK", "--> BCK");
                         pService.onBack();
                         artist.setText(pService.getArtist());
                         title.setText(pService.getTitle());
@@ -129,6 +144,8 @@ public class FragmentMain extends Fragment implements ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
+
+        Log.i("Main_Activity", "Service Disconnected");
 
         // TODO - SET UI responses to binder
 
