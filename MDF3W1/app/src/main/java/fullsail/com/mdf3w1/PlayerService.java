@@ -51,29 +51,35 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
 
     protected void onStart() {
+        Log.i(TAG, "STATE CHECK - onStart");
 
-
-        Log.i(TAG, "onStart");
-
+        // Build foreground notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.headphone);
-        builder.setContentTitle("Playing Music");
-        builder.setContentText("Blah Blah Song Playing");
+
+        // TODO - SET DYNAMIC ASSIGNMENT OF ARTIST & SONG
+        builder.setContentTitle("ARTIST NAME HERE");
+        builder.setContentText("Song Title Here");
+
         builder.setAutoCancel(false);
         builder.setOngoing(true);
-
         startForeground(FOREGROUND_NOTIFICATION, builder.build());
 
 
 
         if(mediaPlayer == null) {
 
-
+            // create media player
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setOnPreparedListener(this);
 
+            // TODO - MAKE ASSIGNMENT OF SONG DYNAMIC
 
+            // TODO - Create custom object & store song information
+
+
+            // grab data source for media player to play
             try {
                 mediaPlayer.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.aerials));
                 onResume();
@@ -151,7 +157,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     @Override
     public IBinder onBind(Intent intent) {
-        // Don't allow binding.
+
+        // TODO - BIND SERVICE
+
         return null;
     }
 
