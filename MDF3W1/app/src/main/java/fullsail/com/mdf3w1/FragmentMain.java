@@ -1,6 +1,7 @@
 package fullsail.com.mdf3w1;
 
 import android.app.Fragment;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -22,6 +23,8 @@ import android.widget.TextView;
  */
 public class FragmentMain extends Fragment implements ServiceConnection {
 
+    final String TAG = "Main_Activity";
+
 
     ImageButton play;
     ImageButton stop;
@@ -34,10 +37,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
 
 
 
-    public static FragmentMain newInstance() {
-        FragmentMain frag = new FragmentMain();
-        return frag;
-    }
+
 
 
 
@@ -56,30 +56,26 @@ public class FragmentMain extends Fragment implements ServiceConnection {
     public void onActivityCreated(Bundle _savedInstanceState) {
         super.onActivityCreated(_savedInstanceState);
 
+        Log.i(TAG, "Activity Created");
 
-
-
-        // grab service intent & initiate service
+        // initiate intent & assign to service/binder
         Intent intent = new Intent(FragmentMain.this.getActivity(), PlayerService.class);
         getActivity().startService(intent);
-
-
-
-
-
-
+        getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
 
     }
 
 
+
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.i("Main_Activity", "Service Connected");
+        Log.i(TAG, "Service Connected");
 
         // create binder
-        PlayerService.LocalBinder binder = (PlayerService.LocalBinder)service;
+        PlayerService.PlayerServiceBinder binder = (PlayerService.PlayerServiceBinder)service;
         pService = binder.getService();
         pBound = true;
+
 
         // assign button references
         play    = (ImageButton) getActivity().findViewById(R.id.play);
@@ -134,12 +130,6 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         );
 
 
-
-
-
-
-        // TODO - set onClick listeners for buttons
-
     }
 
     @Override
@@ -147,7 +137,10 @@ public class FragmentMain extends Fragment implements ServiceConnection {
 
         Log.i("Main_Activity", "Service Disconnected");
 
-        // TODO - SET UI responses to binder
+        if(pBound){
+            pBound = false;
+            pService = null;
+        }
 
     }
 }

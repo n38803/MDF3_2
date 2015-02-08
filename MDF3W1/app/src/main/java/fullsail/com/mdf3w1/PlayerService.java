@@ -21,12 +21,40 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     final String TAG = "MediaPlayer";
 
-    IBinder mBinder = new LocalBinder();
+
     MediaPlayer mediaPlayer;
     boolean mActivityResumed;
     boolean mPrepared;
     int mAudioPosition;
     int currentSong;
+
+    // --[ SERVICE BINDER -------------------------------
+
+    public class PlayerServiceBinder extends Binder {
+        public PlayerService getService() {
+            return PlayerService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+
+
+        return new PlayerServiceBinder();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+
+
+
+        return super.onUnbind(intent);
+    }
+
+
+    // --------------------------------------------------
+
+
 
     @Override
     public void onCreate() {
@@ -49,7 +77,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         onStart();
 
 
-        return Service.START_NOT_STICKY;
+        return Service.START_STICKY;
     }
 
 
@@ -197,32 +225,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
 
 
-    // --[ SERVICE BINDER -------------------------------
-
-    public class LocalBinder extends Binder {
-        public PlayerService getService() {
-            return PlayerService.this;
-        }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-
-        // TODO - BIND SERVICE
-
-        return null;
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-
-
-
-        return super.onUnbind(intent);
-    }
-
-
-    // --------------------------------------------------
 
 
     // --[ FRAGMENT COMMUNICATION METHODS ---------------
