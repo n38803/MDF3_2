@@ -181,7 +181,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         mActivityResumed = true;
 
-        // if player exists but is not prepared
+        // state conditional - not null &
         if(mediaPlayer != null && !mPrepared) {
             mediaPlayer.prepareAsync();
         }
@@ -211,9 +211,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         if(mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.stop(); // stop media from playing
-            mPrepared = false; // boolean for state conditional
-            idleState = false; // boolean for state conditional
-            currentPosition = 0; // reset position int to start from beginning
+            resetState();
             stopForeground(true); // only show notification when song is playing
 
         }
