@@ -7,11 +7,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 /**
  * Created by shaunthompson on 2/8/15.
  */
 public class FragmentMain extends Fragment {
+
+
+    ImageButton play;
+    ImageButton stop;
+    ImageButton forward;
+    ImageButton back;
+
 
     public static FragmentMain newInstance() {
         FragmentMain frag = new FragmentMain();
@@ -38,11 +47,16 @@ public class FragmentMain extends Fragment {
 
 
 
-
+        // grab service intent & initiate service
         Intent intent = new Intent(FragmentMain.this.getActivity(), PlayerService.class);
         getActivity().startService(intent);
 
 
+        // Assign button references
+        play    = (ImageButton) getActivity().findViewById(R.id.play);
+        stop    = (ImageButton) getActivity().findViewById(R.id.stop);
+        forward = (ImageButton) getActivity().findViewById(R.id.forward);
+        back    = (ImageButton) getActivity().findViewById(R.id.back);
 
 
 
