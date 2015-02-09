@@ -35,6 +35,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     boolean idleState;
     boolean mActivityResumed;
     boolean mPrepared;
+    boolean fromPending;
     int currentSong;
     int currentPosition;
 
@@ -76,9 +77,12 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         mPrepared = mActivityResumed = false;
         currentPosition = 0;
         idleState = false;
+        fromPending = false;
 
         Random random = new Random();
         currentSong = random.nextInt(2);
+
+
 
         Log.i(TAG, "onCreate - Service // Randomized Song Selection: " + currentSong);
 
@@ -172,8 +176,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             }
         }
 
-        // TODO - this conditional is causing song to pause when returning from pending intent
+        // TODO - Modify logic to detect pending intent versus pause button being clicked
 
+        //this conditional is causing song to pause when returning from pending intent
         else if (mediaPlayer != null && idleState == false){
             if(mediaPlayer.isPlaying()){
                 onPause();
