@@ -9,6 +9,8 @@ import android.os.Binder;
 import android.support.v4.app.NotificationCompat;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -86,13 +88,19 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     // --[ UI CONTROL METHODS ---------------------------
 
-    protected void onForward(){
-        Log.i(TAG, "STATE CHECK - onForward");
+    protected void onBack(){
+        Log.i(TAG, "STATE CHECK - onBack");
 
-        if(currentSong < 2 && currentSong <= 0){
-            resetState();
-            currentSong++;
-            onResume();
+        if(currentSong != 0 && currentSong <= 2){
+            resetState(); // place mediaplayer into idle & reset song position
+            currentSong--; // move backwards 1 position in array
+            onPlay(); // resume media playback
+        }
+        else if (currentSong == 0){
+            Toast toast = Toast.makeText(getApplicationContext(), "Action Aborted: Start of Playlist Reached.",
+                    Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER|Gravity.CENTER, 0, 0);
+            toast.show();
         }
     }
 
@@ -217,13 +225,20 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
-    protected void onBack(){
-        Log.i(TAG, "STATE CHECK - onBack");
 
-        if(currentSong > 0 && currentSong <= 2){
-            resetState(); // place mediaplayer into idle & reset song position
-            currentSong--; // move backwards 1 position in array
-            onResume(); // resume media playback
+    protected void onForward(){
+        Log.i(TAG, "STATE CHECK - onForward");
+
+        if(currentSong != 2 && currentSong >= 0){
+            resetState();
+            currentSong++;
+            onPlay();
+        }
+        else if (currentSong == 2){
+            Toast toast = Toast.makeText(getApplicationContext(), "Action Aborted: End of Playlist Reached.",
+                    Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER|Gravity.CENTER, 0, 0);
+            toast.show();
         }
     }
 
@@ -238,6 +253,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         }
     }
+
+
 
 
     // --------------------------------------------------
