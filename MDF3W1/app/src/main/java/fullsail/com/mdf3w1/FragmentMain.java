@@ -87,6 +87,11 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         final TextView artist = (TextView) getActivity().findViewById(R.id.artist);
         final TextView title = (TextView) getActivity().findViewById(R.id.title);
 
+        // set textviews based on initial song load
+        artist.setText(pService.getArtist());
+        title.setText(pService.getTitle());
+
+
         play.setOnClickListener(
                 new Button.OnClickListener() {
                     public void onClick(View v) {

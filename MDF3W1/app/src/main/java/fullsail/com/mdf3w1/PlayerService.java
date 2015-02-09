@@ -1,5 +1,6 @@
 package fullsail.com.mdf3w1;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -11,17 +12,23 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
-
 import java.io.IOException;
+import java.util.Random;
 
-/**
+/*
  * Created by shaunthompson on 2/8/15.
- */
-public class PlayerService extends Service implements MediaPlayer.OnPreparedListener {
+*/
+
+
+public class PlayerService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     private static final int FOREGROUND_NOTIFICATION = 0x01001;
+    private static final int REQUEST_NOTIFY_LAUNCH = 0x02001;
 
     final String TAG = "MediaPlayer";
+
+    public String artist;
+    public String title;
 
 
     MediaPlayer mediaPlayer;
@@ -30,6 +37,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     boolean mPrepared;
     int currentSong;
     int currentPosition;
+
+
 
     // --[ SERVICE BINDER -------------------------------
 
@@ -63,13 +72,15 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     public void onCreate() {
         super.onCreate();
 
+
         mPrepared = mActivityResumed = false;
         currentPosition = 0;
-        currentSong = 0;
         idleState = false;
 
-        Log.i(TAG, "onCreate - Service");
+        Random random = new Random();
+        currentSong = random.nextInt(2);
 
+        Log.i(TAG, "onCreate - Service // Randomized Song Selection: " + currentSong);
 
     }
 
@@ -116,6 +127,11 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         // Store objects into array
         PlayerClass playlist [] = {song1, song2, song3};
 
+        // pending intent
+        Intent songIntent = new Intent(this, MainActivity.class);
+        PendingIntent pIntent =
+                PendingIntent.getActivity(this, REQUEST_NOTIFY_LAUNCH, songIntent, 0);
+
         // Build foreground notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.headphone);
@@ -124,8 +140,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         builder.setContentTitle(playlist[currentSong].getArtist());
         builder.setContentText(playlist[currentSong].getTitle());
 
+        // set notification paramaters w/intent
         builder.setAutoCancel(false);
         builder.setOngoing(true);
+        builder.setContentIntent(pIntent);
         startForeground(FOREGROUND_NOTIFICATION, builder.build());
 
         // verify state/existence of mediaplayer via conditional
@@ -136,8 +154,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setOnPreparedListener(this);
 
-            // assign current song to position 0
-            currentSong = 0;
+            // assign current song to position 0 **NOTE Switched this to randomized song selection onCreate
+            //currentSong = 0;
 
             // grab data source for media player to play
             try {
@@ -152,9 +170,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                 mediaPlayer.release();
                 mediaPlayer = null;
             }
-
-
         }
+
+        // TODO - this conditional is causing song to pause when returning from pending intent
+
         else if (mediaPlayer != null && idleState == false){
             if(mediaPlayer.isPlaying()){
                 onPause();
@@ -181,6 +200,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             }
 
         }
+
+        // store existing song information into global variable
+        artist  = (playlist[currentSong].getArtist());
+        title   = (playlist[currentSong].getTitle());
 
     }
 
@@ -225,7 +248,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
-
     protected void onForward(){
         Log.i(TAG, "STATE CHECK - onForward");
 
@@ -255,8 +277,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
 
-
-
     // --------------------------------------------------
 
 
@@ -284,6 +304,13 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+
+        onForward();
+
+    }
+
     // --------------------------------------------------
 
 
@@ -292,16 +319,15 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
 
     // --[ FRAGMENT COMMUNICATION METHODS ---------------
+
     public String getArtist(){
 
-        String artist = "";
+
 
         return artist;
     }
 
     public String getTitle(){
-
-        String title = "";
 
         return title;
     }
