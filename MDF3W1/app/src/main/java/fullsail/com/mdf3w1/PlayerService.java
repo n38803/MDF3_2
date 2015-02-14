@@ -148,20 +148,21 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         // pending intent
         Intent songIntent = new Intent(this, MainActivity.class);
+        songIntent.setAction(Intent.ACTION_MAIN);
+        songIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent pIntent =
-                PendingIntent.getActivity(this, REQUEST_NOTIFY_LAUNCH, songIntent, 0);
+                PendingIntent.getActivity(this, REQUEST_NOTIFY_LAUNCH, songIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // Build foreground notification
+
+        // Build foreground notification w/expanded notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.headphone);
         builder.setStyle(new NotificationCompat.BigPictureStyle()
                 .bigPicture(BitmapFactory.decodeResource(getResources(), art))
                 .setSummaryText(title)
                 .setBigContentTitle(artist));
 
 
-
-
-        builder.setSmallIcon(R.drawable.headphone);
         //builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), art));
 
         // Set notification text dynamically based on array position
@@ -238,7 +239,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         mActivityResumed = true;
 
-        // state conditional - not null &
+        // state conditional - player exists & not prepared
         if(mediaPlayer != null && !mPrepared) {
             mediaPlayer.prepareAsync();
         }
