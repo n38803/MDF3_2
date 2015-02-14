@@ -10,7 +10,6 @@
     <TextView
         android:text="MDF3 MUSIC PLAYER"
         android:textColor="#000000"
-        android:id="@+id/artist"
         android:textStyle="bold"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

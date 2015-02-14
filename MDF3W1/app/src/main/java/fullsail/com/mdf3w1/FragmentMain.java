@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Binder;
 import android.os.Bundle;
@@ -85,6 +86,11 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         // identify orientation
         getOrientation();
 
+        // initiate intent & assign to service/binder
+        Intent intent = new Intent(FragmentMain.this.getActivity(), PlayerService.class);
+        getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
+        getActivity().startService(intent);
+
 
         // Create and return view for this fragment.
         if (portraitMode == true){ // portrait/vertical view
@@ -162,6 +168,16 @@ public class FragmentMain extends Fragment implements ServiceConnection {
     }
 
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        Intent intent = new Intent(FragmentMain.this.getActivity(), PlayerService.class);
+        getActivity().stopService(intent);
+
+
+    }
+
 
     @Override
     public void onActivityCreated(Bundle _savedInstanceState) {
@@ -169,10 +185,9 @@ public class FragmentMain extends Fragment implements ServiceConnection {
 
         Log.i(TAG, "Activity Created");
 
-        // initiate intent & assign to service/binder
-        Intent intent = new Intent(FragmentMain.this.getActivity(), PlayerService.class);
-        getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
-        getActivity().startService(intent);
+
+
+
 
 
 
@@ -296,6 +311,8 @@ public class FragmentMain extends Fragment implements ServiceConnection {
                     public void onClick(View v) {
                         Log.i("BUTTON CLICK", "--> Stop");
                         pService.onStop();
+                        Intent intent = new Intent(FragmentMain.this.getActivity(), PlayerService.class);
+                        getActivity().stopService(intent);
 
                     }
                 }
