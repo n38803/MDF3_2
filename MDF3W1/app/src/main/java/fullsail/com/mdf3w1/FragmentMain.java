@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,7 +17,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import android.os.Handler;
 
 /**
  * Created by shaunthompson on 2/8/15.
@@ -30,12 +38,19 @@ public class FragmentMain extends Fragment implements ServiceConnection {
     ImageButton stop;
     ImageButton forward;
     ImageButton back;
+    SeekBar sBar;
+    Button loop;
 
     PlayerService pService;
     boolean pBound;
+    boolean checkLoop = false;
+
+    int sPosition;
+    int sLength;
+    int sCurrent;
 
 
-
+    private Handler progressHandler = new Handler();
 
 
 
@@ -48,6 +63,70 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         // Create and return view for this fragment.
         View view = _inflater.inflate(R.layout.fragment_main, _container, false);
         return view;
+    }
+
+    public void setSongInfo(){
+
+        // Assign view references
+        final TextView artist = (TextView) getActivity().findViewById(R.id.artist);
+        final TextView title = (TextView) getActivity().findViewById(R.id.title);
+        final ImageView art = (ImageView) getActivity().findViewById(R.id.image);
+
+
+        // set current song information to views
+        artist.setText(pService.getArtist());
+        title.setText(pService.getTitle());
+        art.setImageResource(pService.getArt());
+
+
+
+    }
+
+    public void getSongMetrics(){
+        sLength = pService.getSongLength();
+        sPosition = pService.getSongPosition();
+    }
+
+    public void resetProgress(){
+
+        SeekBar sBar = (SeekBar) getActivity().findViewById(R.id.hseek);
+        sBar.setProgress(0);
+        sLength = 0;
+        sPosition = 0;
+        sCurrent = 0;
+
+    }
+
+
+    private Runnable updateTime = new Runnable() {
+
+        @Override
+        public void run() {
+
+            SeekBar sBar = (SeekBar) getActivity().findViewById(R.id.hseek);
+            TextView time = (TextView) getActivity().findViewById(R.id.hsongProgress);
+
+            if(pService.isNotNull())
+            {
+                DateFormat dformat = new SimpleDateFormat("mm:ss");
+                String current = dformat.format(pService.getSongPosition());
+                time.setText("[ " + current + " ] ");
+
+
+                sCurrent = pService.getSongPosition() / 1000;
+                sBar.setProgress(sCurrent);
+                progressHandler.postDelayed(this, 1000);
+            }
+            else if (!pService.isNotNull())
+            {
+                sBar.setProgress(0);
+            }
+
+        }
+    };
+
+    private void updateProgress(){
+        progressHandler.postDelayed(updateTime, 100);
     }
 
 
@@ -77,11 +156,65 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         pBound = true;
 
 
-        // assign button references
+        // assign references
         play    = (ImageButton) getActivity().findViewById(R.id.play);
         stop    = (ImageButton) getActivity().findViewById(R.id.stop);
         forward = (ImageButton) getActivity().findViewById(R.id.forward);
         back    = (ImageButton) getActivity().findViewById(R.id.back);
+        sBar    = (SeekBar) getActivity().findViewById(R.id.hseek);
+        loop    = (Button) getActivity().findViewById(R.id.hloop);
+
+
+        // initial establishment of song & info
+        setSongInfo();
+
+        // start progress bar
+        updateProgress();
+
+        //sBar.setMax(maxTime);
+
+        // seekbar listener for user interaction
+        sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            // set song position to coincide with seekbar
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,
+                                          boolean fromUser) {
+
+                if(pService.isNotNull() && fromUser)
+                {
+                    getSongMetrics();
+                    int croppedLength = (sLength / 100);
+                    int newTime = (progress*croppedLength);
+                    Log.e(TAG, "Progress: " + progress + " / " + newTime);
+                    // set song to current bar position
+                    pService.setSongPosition(newTime);
+
+                }
+
+            }
+
+
+            // what to do when listener starts tracking bar location
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+                //updateProgress();
+                //sBar.setVerticalScrollbarPosition(mService.getSongPosition());
+
+            }
+
+            // what to do when listener stops tracking bar location
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+
+
+
+
+        });
+
 
         // assign textview references
         final TextView artist = (TextView) getActivity().findViewById(R.id.artist);
@@ -91,14 +224,35 @@ public class FragmentMain extends Fragment implements ServiceConnection {
         artist.setText(pService.getArtist());
         title.setText(pService.getTitle());
 
+        // create onClickListeners for each button w/execution of corresponding methods
+        loop.setOnClickListener(
+                new Button.OnClickListener() {
+                    public void onClick(View v) {
+
+                        // check whether or not looping is turned on
+                        checkLoop = pService.getLooping();
+
+                        // conditional handler
+                        if(checkLoop == true){
+                            loop.setTextColor(Color.RED);
+                            pService.setLooping(false);
+                        }
+                        if(checkLoop == false){
+                            loop.setTextColor(Color.GREEN);
+                            pService.setLooping(true);
+                        }
+
+                    }
+                }
+        );
+
 
         play.setOnClickListener(
                 new Button.OnClickListener() {
                     public void onClick(View v) {
                         Log.i("BUTTON CLICK", "--> PLAY");
                         pService.onPlay();
-                        artist.setText(pService.getArtist());
-                        title.setText(pService.getTitle());
+                        setSongInfo();
                     }
                 }
         );
@@ -117,8 +271,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
                     public void onClick(View v) {
                         Log.i("BUTTON CLICK", "--> FWD");
                         pService.onForward();
-                        artist.setText(pService.getArtist());
-                        title.setText(pService.getTitle());
+                        setSongInfo();
                     }
                 }
         );
@@ -128,8 +281,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
                     public void onClick(View v) {
                         Log.i("BUTTON CLICK", "--> BCK");
                         pService.onBack();
-                        artist.setText(pService.getArtist());
-                        title.setText(pService.getTitle());
+                        setSongInfo();
                     }
                 }
         );

@@ -11,12 +11,15 @@ public class PlayerClass {
     private String artist;
     private String title;
     private String file;
+    private int art;
 
     // class constructors
-    public PlayerClass (String sArtist, String sTitle, String sFile) {
+    public PlayerClass (String sArtist, String sTitle, String sFile, int sArt) {
         artist=sArtist;
         title=sTitle;
         file=sFile;
+        art=sArt;
+
     }
 
 
@@ -24,6 +27,9 @@ public class PlayerClass {
     public String getArtist(){return artist;}
     public String getTitle(){return title;}
     public String getFile(){return file;}
+    public int getArt(){
+        return art;
+    }
 
 
 

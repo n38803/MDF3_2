@@ -1,8 +1,10 @@
 package fullsail.com.mdf3w1;
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -29,6 +31,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     public String artist;
     public String title;
+    public int art;
 
 
     MediaPlayer mediaPlayer;
@@ -36,8 +39,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     boolean mActivityResumed;
     boolean mPrepared;
     boolean fromPending;
+    boolean isLooping = false;
     int currentSong;
     int currentPosition;
+    int currentSongLength;
 
 
 
@@ -106,10 +111,15 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     protected void onBack(){
         Log.i(TAG, "STATE CHECK - onBack");
 
-        if(currentSong != 0 && currentSong <= 2){
+        if(currentSong != 0 && currentSong <= 2 && isLooping == false){
             resetState(); // place mediaplayer into idle & reset song position
             currentSong--; // move backwards 1 position in array
             onPlay(); // resume media playback
+        }
+        else if(isLooping == true) // place player into idle, reset position, & play from start
+        {
+            resetState();
+            onPlay();
         }
         else if (currentSong == 0){
             Toast toast = Toast.makeText(getApplicationContext(), "Action Aborted: Start of Playlist Reached.",
@@ -124,12 +134,17 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
 
         // Create custom objects & assign information
-        PlayerClass song1 = new PlayerClass("Echoes of Aeons", "New Life", ("android.resource://" + getPackageName() + "/" + R.raw.newlife));
-        PlayerClass song2 = new PlayerClass("Echoes of Aeons", "Serenity", ("android.resource://" + getPackageName() + "/" + R.raw.serenity));
-        PlayerClass song3 = new PlayerClass("Echoes of Aeons", "Aerials", ("android.resource://" + getPackageName() + "/" + R.raw.aerials));
+        PlayerClass song1 = new PlayerClass("Echoes of Aeons", "New Life", ("android.resource://" + getPackageName() + "/" + R.raw.newlife), R.drawable.gotmphoto);
+        PlayerClass song2 = new PlayerClass("Echoes of Aeons", "Serenity", ("android.resource://" + getPackageName() + "/" + R.raw.serenity), R.drawable.gotmphoto2);
+        PlayerClass song3 = new PlayerClass("Echoes of Aeons", "Aerials", ("android.resource://" + getPackageName() + "/" + R.raw.aerials), R.drawable.gotmphoto3);
 
         // Store objects into array
         PlayerClass playlist [] = {song1, song2, song3};
+
+        // store existing song information into global variable
+        artist  = (playlist[currentSong].getArtist());
+        title   = (playlist[currentSong].getTitle());
+        art     = (playlist[currentSong].getArt());
 
         // pending intent
         Intent songIntent = new Intent(this, MainActivity.class);
@@ -138,7 +153,16 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         // Build foreground notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setStyle(new NotificationCompat.BigPictureStyle()
+                .bigPicture(BitmapFactory.decodeResource(getResources(), art))
+                .setSummaryText(title)
+                .setBigContentTitle(artist));
+
+
+
+
         builder.setSmallIcon(R.drawable.headphone);
+        //builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), art));
 
         // Set notification text dynamically based on array position
         builder.setContentTitle(playlist[currentSong].getArtist());
@@ -206,9 +230,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         }
 
-        // store existing song information into global variable
-        artist  = (playlist[currentSong].getArtist());
-        title   = (playlist[currentSong].getTitle());
 
     }
 
@@ -256,9 +277,14 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     protected void onForward(){
         Log.i(TAG, "STATE CHECK - onForward");
 
-        if(currentSong != 2 && currentSong >= 0){
+        if(currentSong != 2 && currentSong >= 0 && isLooping == false){
             resetState();
             currentSong++;
+            onPlay();
+        }
+        else if(isLooping == true) // place player into idle, reset position, & play from start
+        {
+            resetState();
             onPlay();
         }
         else if (currentSong == 2){
@@ -316,6 +342,19 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     }
 
+    public boolean isNotNull(){
+        if (mediaPlayer != null)
+        {
+            return true;
+
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
     // --------------------------------------------------
 
 
@@ -336,6 +375,60 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         return title;
     }
+
+    public int getArt(){
+
+        return art;
+    }
+
+    public Boolean getLooping(){
+        return isLooping;
+    }
+
+    public int getSongLength() {
+
+        currentSongLength = mediaPlayer.getDuration();
+        return currentSongLength;
+    }
+
+    public int getSongPosition(){
+
+        if (mediaPlayer.isPlaying()){
+            currentPosition = mediaPlayer.getCurrentPosition();
+            Log.i("From getSongPosition Method", "Position: " + currentPosition);
+        }
+        else if (!mediaPlayer.isPlaying() && idleState == false)
+        {
+            currentPosition = 0;
+        }
+
+        return currentPosition;
+    }
+
+    public void setSongPosition(int newPosition){
+        if(mediaPlayer.isPlaying())
+        {
+            //onReset();
+            currentPosition = newPosition;
+            mediaPlayer.seekTo(currentPosition);
+            Log.i("From Seek Change", "Current Position: " + newPosition);
+        }
+        else if(!mediaPlayer.isPlaying())
+        {
+            currentPosition = newPosition;
+            onPlay();
+            Log.i("From Seek Change", "Current Position: " + currentPosition);
+        }
+
+
+    }
+
+    public void setLooping(boolean checkLooping){
+        isLooping = checkLooping;
+        Log.i("LOOP", "Status: " + checkLooping);
+    }
+
+
 
     // --------------------------------------------------
 
