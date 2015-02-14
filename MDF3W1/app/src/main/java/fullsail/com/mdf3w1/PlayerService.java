@@ -271,6 +271,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             mediaPlayer.stop(); // stop media from playing
             resetState();
             stopForeground(true); // only show notification when song is playing
+            // TODO unbind service
 
         }
     }

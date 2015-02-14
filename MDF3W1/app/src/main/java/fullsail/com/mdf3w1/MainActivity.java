@@ -2,12 +2,16 @@ package fullsail.com.mdf3w1;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
 
 public class MainActivity extends Activity {
+
+    String TAG = "MAIN_ACTIVITY";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

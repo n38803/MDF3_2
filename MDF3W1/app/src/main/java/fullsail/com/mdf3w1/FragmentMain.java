@@ -49,19 +49,51 @@ public class FragmentMain extends Fragment implements ServiceConnection {
     int sLength;
     int sCurrent;
 
+    View view;
+
 
     private Handler progressHandler = new Handler();
 
 
 
+    public boolean portraitMode;
 
+    public void getOrientation(){
+
+        // vertical returns 1 // horizontal returns 2
+        int orientation = getResources().getConfiguration().orientation;
+
+        // DEVICE IS IN HORIZONTAL
+        if (orientation == 2) {
+            portraitMode = false;
+            Log.i(TAG, "Orientation is Horizontal");
+
+        }
+        // DEVICE IS IN HORIZONTAL
+        else if (orientation == 1){
+            portraitMode = true;
+            Log.i(TAG, "Orientation is Vertical");
+
+
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater _inflater, ViewGroup _container,
                              Bundle _savedInstanceState) {
 
+        // identify orientation
+        getOrientation();
+
+
         // Create and return view for this fragment.
-        View view = _inflater.inflate(R.layout.fragment_main, _container, false);
+        if (portraitMode == true){ // portrait/vertical view
+            view = _inflater.inflate(R.layout.fragment_main, _container, false);
+        }
+        else if (portraitMode == false){ // landscape/horizontal view
+            view = _inflater.inflate(R.layout.fragment_landscape, _container, false);
+        }
+
         return view;
     }
 
@@ -139,15 +171,17 @@ public class FragmentMain extends Fragment implements ServiceConnection {
 
         // initiate intent & assign to service/binder
         Intent intent = new Intent(FragmentMain.this.getActivity(), PlayerService.class);
-        getActivity().startService(intent);
         getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
+        getActivity().startService(intent);
+
+
 
     }
 
 
 
     @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
+    public void onServiceConnected(ComponentName name, final IBinder service) {
         Log.i(TAG, "Service Connected");
 
         // create binder
@@ -262,6 +296,7 @@ public class FragmentMain extends Fragment implements ServiceConnection {
                     public void onClick(View v) {
                         Log.i("BUTTON CLICK", "--> Stop");
                         pService.onStop();
+
                     }
                 }
         );
