@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="#333333" >
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/widgetAdd"
+        android:text="PUBLISH NEW ARTICLE"/>
+
+    <ListView android:id="@+id/article_list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+    <TextView android:id="@+id/empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/empty" />
+
+</LinearLayout>
