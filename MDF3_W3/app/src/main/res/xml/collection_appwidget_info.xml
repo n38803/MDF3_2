@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:minWidth="250dp"
     android:minHeight="120dp"
-    android:updatePeriodMillis="1000"
+    android:updatePeriodMillis="1"
     android:initialLayout="@layout/widget_layout"
     android:resizeMode="none"
     android:widgetCategory="home_screen"

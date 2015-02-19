@@ -4,11 +4,30 @@
     android:orientation="vertical"
     android:background="#333333" >
 
-    <Button
-        android:layout_width="match_parent"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/widgetAdd"
-        android:text="PUBLISH NEW ARTICLE"/>
+        android:orientation="horizontal"
+        android:background="#333333"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/widgetAdd"
+            android:text="PUBLISH NEW ARTICLE"
+            android:layout_weight=".8"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/widgetRefresh"
+            android:text="REFRESH"
+            android:layout_weight=".2"/>
+
+
+    </LinearLayout>
+
 
     <ListView android:id="@+id/article_list"
         android:layout_width="fill_parent"

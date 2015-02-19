@@ -5,6 +5,8 @@ package fullsail.com.mdf3_w3;
  */
 
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.logging.Handler;
 
 import fullsail.com.mdf3_w3.dataclass.NewsArticle;
 import fullsail.com.mdf3_w3.fragments.AddFragment;
@@ -79,15 +82,12 @@ public class AddActivity extends Activity {
 
     public void onSave(View v){
 
-
-
-
-
+        // assign references
         inputTitle = (TextView) findViewById(R.id.inputTitle);
         inputAuthor = (TextView) findViewById(R.id.inputAuthor);
         inputDate = (TextView) findViewById(R.id.inputDate);
 
-        // assign input to variables
+        // assign input to string variables
         aTitle = inputTitle.getText().toString();
         aAuthor = inputAuthor.getText().toString();
         aDate = inputDate.getText().toString();
@@ -105,6 +105,7 @@ public class AddActivity extends Activity {
 
             mArticleList.add(new NewsArticle(aTitle, aAuthor, aDate));
             writeFile();
+
         }
         else if(iRequest.equals("From_MainActivity"))
         {
@@ -127,6 +128,7 @@ public class AddActivity extends Activity {
 
     }
 
+    // reset inputs
     private void clearDisplay(){
         inputTitle = (TextView) findViewById(R.id.inputTitle);
         inputAuthor = (TextView) findViewById(R.id.inputAuthor);
