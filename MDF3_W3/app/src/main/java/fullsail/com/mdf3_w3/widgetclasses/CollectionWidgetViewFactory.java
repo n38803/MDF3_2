@@ -126,7 +126,7 @@ public class CollectionWidgetViewFactory implements RemoteViewsService.RemoteVie
         // Heavy lifting code can go here without blocking the UI.
         // You would update the data in your collection here as well.
         Log.w(TAG, "Data has changed!");
-        //readFile();
+        readFile();
     }
 
 

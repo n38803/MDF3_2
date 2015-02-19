@@ -6,12 +6,18 @@ package fullsail.com.mdf3_w3;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import fullsail.com.mdf3_w3.dataclass.NewsArticle;
@@ -53,7 +59,7 @@ public class AddActivity extends Activity {
         }
 
 
-
+        readFile();
 
 
     }
@@ -73,8 +79,8 @@ public class AddActivity extends Activity {
 
     public void onSave(View v){
 
-        // Grabs intent from main activity
-        Intent addIntent = getIntent();
+
+
 
 
         inputTitle = (TextView) findViewById(R.id.inputTitle);
@@ -86,23 +92,32 @@ public class AddActivity extends Activity {
         aAuthor = inputAuthor.getText().toString();
         aDate = inputDate.getText().toString();
 
-        //registerReceiver(mAppReceiver, new IntentFilter(ACTION_ADD_ARTICLE));
+        // Grabs intent from main activity
+        Intent aIntent = getIntent();
 
-        /*
-        Intent broadcast  = new Intent(ACTION_ADD_ARTICLE);
-        broadcast .putExtra("articleTitle", aTitle);
-        broadcast .putExtra("articleAuthor", aAuthor);
-        broadcast .putExtra("articleDate", aDate);
-        broadcast .putExtra("action", "add");
-        sendBroadcast(broadcast);
-        */
+        // assign intent extra to string
+        String iRequest = aIntent.getExtras().getString("Add");
 
-        Intent aIntent = new Intent();
-        aIntent.putExtra("articleTitle", aTitle);
-        aIntent.putExtra("articleAuthor", aAuthor);
-        aIntent.putExtra("articleDate", aDate);
-        aIntent.putExtra("action", "add");
-        setResult(RESULT_OK, aIntent);
+        // conditional to determine which intent launched activity
+        if(iRequest.equals("From_Widget"))
+        {
+            Log.d(TAG, "Saving information to disk for Widget update");
+
+            mArticleList.add(new NewsArticle(aTitle, aAuthor, aDate));
+            writeFile();
+        }
+        else if(iRequest.equals("From_MainActivity"))
+        {
+            Log.d(TAG, "Sending information to Main Activity");
+
+            aIntent.putExtra("articleTitle", aTitle);
+            aIntent.putExtra("articleAuthor", aAuthor);
+            aIntent.putExtra("articleDate", aDate);
+            aIntent.putExtra("action", "add");
+            setResult(RESULT_OK, aIntent);
+        }
+
+
 
 
         clearDisplay();
@@ -122,6 +137,39 @@ public class AddActivity extends Activity {
         inputDate.setText("");
     }
 
+    private void readFile() {
+
+
+        try {
+            FileInputStream fin = openFileInput(saveFile);
+            ObjectInputStream oin = new ObjectInputStream(fin);
+            mArticleList = (ArrayList<NewsArticle>) oin.readObject();
+            oin.close();
+
+        } catch (Exception e) {
+            Log.e(TAG, "There was an error creating the array");
+        }
+    }
+
+
+    // Creates local storage file
+    private void writeFile() {
+
+        try {
+            FileOutputStream fos = openFileOutput(saveFile, this.MODE_PRIVATE);
+
+
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(mArticleList);
+            Log.i(TAG, "Object Saved Successfully");
+            oos.close();
+
+        } catch (Exception e) {
+            Log.e(TAG, "Save Unsuccessful");
+        }
+
+
+    }
 
 
 

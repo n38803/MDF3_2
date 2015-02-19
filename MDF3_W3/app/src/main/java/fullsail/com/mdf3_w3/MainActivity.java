@@ -75,6 +75,7 @@ public class MainActivity extends Activity implements MainListFragment.ArticleLi
 
         Intent addIntent = new Intent(MainActivity.this, AddActivity.class);
         //addIntent.putExtra("contactName", mContactDataList.get());
+        addIntent.putExtra("Add", "From_MainActivity");
         startActivityForResult(addIntent, ADDREQUEST);
         //startActivity(addIntent);
 
@@ -137,7 +138,9 @@ public class MainActivity extends Activity implements MainListFragment.ArticleLi
         Intent detailIntent = new Intent(this, DetailsActivity.class);
 
         // pass position from list into intent by using constant from detail activity
+        // detailIntent.putExtra("APP", true);
         detailIntent.putExtra(DetailsActivity.EXTRA_ITEM, mArticleList.get(position));
+
 
         // start detail activity by passing intent we wish to load
         startActivity(detailIntent);
@@ -190,6 +193,8 @@ public class MainActivity extends Activity implements MainListFragment.ArticleLi
             mArticleList.add(new NewsArticle("Article Three", "Julie Doe", "01/04/15"));
             mArticleList.add(new NewsArticle("Article Four", "Jason Doe", "01/05/15"));
             mArticleList.add(new NewsArticle("Article Five", "Jacob Doe", "01/06/15"));
+
+            writeFile();
         }
     }
 

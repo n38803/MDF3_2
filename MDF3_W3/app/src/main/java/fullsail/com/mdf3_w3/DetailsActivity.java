@@ -7,6 +7,7 @@ package fullsail.com.mdf3_w3;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import fullsail.com.mdf3_w3.dataclass.NewsArticle;
@@ -30,7 +31,20 @@ public class DetailsActivity extends Activity {
         Intent intent = getIntent();
         mArticle = (NewsArticle) intent.getSerializableExtra(EXTRA_ITEM);
 
+        /*
+        // detect whether or not intent was called from application
+        if (intent.getBooleanExtra("APP", false))
+        {
+            // intent is called from widget
+            Log.d(TAG, "Detail Activity Launched from Widget");
 
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // clear top of stack so back button returns home
+        }
+        else if (intent.getBooleanExtra("APP", true)){
+            // intent is called from activity - do nothing.
+            Log.d(TAG, "Detail Activity Launched from App");
+        }
+        */
 
         if (mArticle == null) {
             finish();
