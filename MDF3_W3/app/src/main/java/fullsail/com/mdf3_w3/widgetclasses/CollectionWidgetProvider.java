@@ -48,6 +48,7 @@ public class CollectionWidgetProvider extends AppWidgetProvider {
 
 
     private void forceUpdate(Context context) {
+
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(context, CollectionWidgetProvider.class));
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.article_list);
@@ -129,22 +130,15 @@ public class CollectionWidgetProvider extends AppWidgetProvider {
             rView.setPendingIntentTemplate(R.id.article_list, dIntent);
 
             Intent addIntent = new Intent(ACTION_ADD_ARTICLE);
-            PendingIntent aIntent = PendingIntent.getBroadcast(context, REQUEST_NOTIFY_LAUNCH, addIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent aIntent = PendingIntent.getBroadcast(context, 0, addIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             rView.setOnClickPendingIntent(R.id.widgetAdd, aIntent );
 
             Intent refreshIntent = new Intent(ACTION_REFRESH);
             PendingIntent rIntent = PendingIntent.getBroadcast(context, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             rView.setOnClickPendingIntent(R.id.widgetRefresh, rIntent );
 
-
-            //AppWidgetManager awm = AppWidgetManager.getInstance(context);
-            //awm.updateAppWidget(new ComponentName(context.getPackageName(), CollectionWidgetProvider.class.getName()), rView);
-
-
             // update view
             appWidgetManager.updateAppWidget(widgetId, rView);
-
-
 
         }
 

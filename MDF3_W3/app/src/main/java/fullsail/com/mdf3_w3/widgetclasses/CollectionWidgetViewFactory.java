@@ -19,9 +19,7 @@ import java.util.ArrayList;
 import fullsail.com.mdf3_w3.R;
 import fullsail.com.mdf3_w3.dataclass.NewsArticle;
 
-/**
- * Created by shaunthompson on 2/17/15.
- */
+
 public class CollectionWidgetViewFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private static final int ID_CONSTANT = 0x0101010;
