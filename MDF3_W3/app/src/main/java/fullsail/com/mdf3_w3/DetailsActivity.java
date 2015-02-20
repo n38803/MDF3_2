@@ -31,7 +31,7 @@ public class DetailsActivity extends Activity {
         Intent intent = getIntent();
         mArticle = (NewsArticle) intent.getSerializableExtra(EXTRA_ITEM);
 
-        /*
+
         // detect whether or not intent was called from application
         if (intent.getBooleanExtra("APP", false))
         {
@@ -44,7 +44,6 @@ public class DetailsActivity extends Activity {
             // intent is called from activity - do nothing.
             Log.d(TAG, "Detail Activity Launched from App");
         }
-        */
 
         if (mArticle == null) {
             finish();

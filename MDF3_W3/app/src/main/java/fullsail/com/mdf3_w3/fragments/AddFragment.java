@@ -145,11 +145,10 @@ public class AddFragment extends Fragment {
             mArticleList.add(new NewsArticle(aTitle, aAuthor, aDate));
             writeFile();
 
-            // force update
+            // force widget to update by notifying datasetchange()
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(AddFragment.this.getActivity());
             int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(AddFragment.this.getActivity(), CollectionWidgetProvider.class));
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.article_list);
-
         }
         else if(iRequest.equals("From_MainActivity"))
         {
@@ -161,9 +160,6 @@ public class AddFragment extends Fragment {
             aIntent.putExtra("action", "add");
             getActivity().setResult(getActivity().RESULT_OK, aIntent);
         }
-
-
-
 
         clearDisplay();
         getActivity().finish();

@@ -5,6 +5,8 @@ package fullsail.com.mdf3_w3;
  */
 
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 
 import fullsail.com.mdf3_w3.dataclass.NewsArticle;
 import fullsail.com.mdf3_w3.fragments.MainListFragment;
+import fullsail.com.mdf3_w3.widgetclasses.CollectionWidgetProvider;
 
 
 public class MainActivity extends Activity implements MainListFragment.ArticleListener {
@@ -120,8 +123,15 @@ public class MainActivity extends Activity implements MainListFragment.ArticleLi
 
             writeFile();
 
+
+
             if (action.equals("add")){
                 Toast.makeText(this, rTitle + " added to Article List.", Toast.LENGTH_LONG).show();
+
+                // force widget to update by notifying datasetchange()
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+                int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(this, CollectionWidgetProvider.class));
+                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.article_list);
 
 
             }
