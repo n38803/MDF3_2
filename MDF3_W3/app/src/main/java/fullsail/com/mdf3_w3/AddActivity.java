@@ -103,8 +103,14 @@ public class AddActivity extends Activity {
         {
             Log.d(TAG, "Saving information to disk for Widget update");
 
+            // add info to array & save to file
             mArticleList.add(new NewsArticle(aTitle, aAuthor, aDate));
             writeFile();
+
+            // force update
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+            int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(this, CollectionWidgetProvider.class));
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.article_list);
 
         }
         else if(iRequest.equals("From_MainActivity"))

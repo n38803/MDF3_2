@@ -37,7 +37,6 @@ public class CollectionWidgetProvider extends AppWidgetProvider {
 
     public static final String ACTION_VIEW_DETAILS = "fullsail.com.mdf3_w3.ACTION_VIEW_DETAILS";
     public static final String ACTION_ADD_ARTICLE = "fullsail.com.mdf3_w3.ACTION_ADD_ARTICLE";
-    public static final String ACTION_REFRESH = "fullsail.com.mdf3_w3.ACTION_REFRESH";
     public static final String EXTRA_ITEM = "fullsail.com.CollectionWidgetProvider.EXTRA_ITEM";
 
     private static final int REQUEST_NOTIFY_LAUNCH = 0x02001;
@@ -47,20 +46,11 @@ public class CollectionWidgetProvider extends AppWidgetProvider {
     public final String TAG = "WIDGET PROVIDER";
 
 
-    private void forceUpdate(Context context) {
 
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(context, CollectionWidgetProvider.class));
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.article_list);
-
-
-    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        // call onDataSetChanged()
-        forceUpdate(context);
 
         // conditional to determine which item has been clicked -- details
         if(intent.getAction().equals(ACTION_VIEW_DETAILS)) {
@@ -87,10 +77,6 @@ public class CollectionWidgetProvider extends AppWidgetProvider {
 
             Log.i(TAG, "Pending Intent launched from onReceive(): ADD ACTIVITY");
 
-        }
-
-        else if (intent.getAction().equals(ACTION_REFRESH)){
-            forceUpdate(context);
         }
 
 
@@ -133,11 +119,8 @@ public class CollectionWidgetProvider extends AppWidgetProvider {
             PendingIntent aIntent = PendingIntent.getBroadcast(context, 0, addIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             rView.setOnClickPendingIntent(R.id.widgetAdd, aIntent );
 
-            Intent refreshIntent = new Intent(ACTION_REFRESH);
-            PendingIntent rIntent = PendingIntent.getBroadcast(context, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            rView.setOnClickPendingIntent(R.id.widgetRefresh, rIntent );
 
-            // update view
+            // update remote views
             appWidgetManager.updateAppWidget(widgetId, rView);
 
         }

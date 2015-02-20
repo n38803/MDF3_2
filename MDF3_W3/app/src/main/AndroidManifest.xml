@@ -33,7 +33,6 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="fullsail.com.mdf3_w3.ACTION_VIEW_DETAILS" />
                 <action android:name="fullsail.com.mdf3_w3.ACTION_ADD_ARTICLE" />
-                <action android:name="fullsail.com.mdf3_w3.ACTION_REFRESH" />
             </intent-filter>
 
             <meta-data android:name="android.appwidget.provider"
