@@ -29,7 +29,7 @@ import fullsail.com.mdf3_w3.dataclass.NewsArticle;
     // TODO     Fix PendingIntent for Detail to return to widget (homescreen)           COMPLETED
     // TODO     Re-implement add activity from widget                                   COMPLETED
     // TODO     Ensure pendingintent for add returns to widget                          COMPLETED
-    // TODO     Implement manual or auto refresh                                        COMPLETED (MANUAL)
+    // TODO     Implement manual or auto refresh                                        COMPLETED (AUTO)
 
 
 
@@ -106,7 +106,6 @@ public class CollectionWidgetProvider extends AppWidgetProvider {
             rView = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
             rView.setRemoteAdapter(R.id.article_list, intent);
             rView.setRemoteAdapter(R.id.widgetAdd, intent);
-            rView.setRemoteAdapter(R.id.widgetRefresh, intent);
             rView.setEmptyView(R.id.article_list, R.id.empty);
 
 
