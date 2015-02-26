@@ -65,6 +65,8 @@ public class AddActivity extends Activity {
         readFile();
 
 
+
+
     }
 
     public void onCancel(View v){

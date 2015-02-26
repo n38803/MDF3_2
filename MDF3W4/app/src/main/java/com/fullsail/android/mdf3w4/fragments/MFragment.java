@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fullsail.android.mdf3w4.AddActivity;
 import com.fullsail.android.mdf3w4.MainActivity;
@@ -40,6 +41,9 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
     public static final int ADDREQUEST = 2;
 
     GoogleMap mMap;
+    LatLng mPosition;
+
+    Context context;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -72,11 +76,43 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == ADDREQUEST && resultCode == getActivity().RESULT_OK) {
+            String rTitle = data.getStringExtra("markerTitle");
+            String rDetails = data.getStringExtra("markerDetails");
+            String rImage = data.getStringExtra("markerImage");
+            String action = data.getStringExtra("action");
+
+            //mArticleList.add(new NewsArticle(rTitle, rAuthor, rDate));
+
+
+            //MainListFragment nf = (MainListFragment) getFragmentManager().findFragmentById(R.id.container);
+            //nf.updateListData();
+
+            //writeFile();
+
+            if (action.equals("add")) {
+                Toast.makeText(getActivity().getApplicationContext(), "Marker added for: " + rTitle, Toast.LENGTH_LONG).show();
+
+                // todo- set coordinates to be dynamic
+                mMap.addMarker(new MarkerOptions().position(mPosition).title(rTitle));
+
+            }
+        }
+    }
+
+
     @Override
     public void onInfoWindowClick(final Marker marker) {
         new AlertDialog.Builder(getActivity())
-                .setTitle("Marker Clicked")
-                .setMessage("You clicked on: " + marker.getTitle())
+                .setTitle(marker.getTitle())
+
+                //todo - set message to be dynamic
+                .setMessage("MAKE THIS DYNAMIC")
                 .setPositiveButton("Close", null)
                 .setNegativeButton("Remove", new DialogInterface.OnClickListener() {
 
@@ -100,11 +136,12 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
                     public void onClick(DialogInterface dialog, int which) {
                         //mMap.addMarker(new MarkerOptions().position(location).title("New Marker"));
 
-                        Intent addIntent = new Intent(getActivity(), AddActivity.class);
-                        addIntent.putExtra("Add", "From_MainActivity");
+                        mPosition = location;
+                        Intent addIntent = new Intent(getActivity().getApplicationContext(), AddActivity.class);
+                        addIntent.putExtra("Add", "From_MFragment");
                         startActivityForResult(addIntent, ADDREQUEST);
 
-                        Log.i(TAG, "Button Clicked");
+                        Log.i(TAG, "To AddActivity from MFragment: " + mPosition);
                     }
                 })
                 .show();
@@ -132,6 +169,42 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
             return null;
         }
+    }
+
+    private void readFile() {
+
+        /*
+        try {
+            FileInputStream fin = openFileInput(saveFile);
+            ObjectInputStream oin = new ObjectInputStream(fin);
+            mArticleList = (ArrayList<NewsArticle>) oin.readObject();
+            oin.close();
+
+        } catch (Exception e) {
+            Log.e(TAG, "There was an error creating the array");
+        }
+        */
+    }
+
+
+    // Creates local storage file
+    private void writeFile() {
+
+        /*
+        try {
+            FileOutputStream fos = openFileOutput(saveFile, this.MODE_PRIVATE);
+
+
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(mArticleList);
+            Log.i(TAG, "Object Saved Successfully");
+            oos.close();
+
+        } catch (Exception e) {
+            Log.e(TAG, "Save Unsuccessful");
+        }
+
+        */
     }
 
 }
