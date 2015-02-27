@@ -203,7 +203,7 @@ public class AddFragment extends Fragment {
         String iRequest = aIntent.getExtras().getString("Add");
 
         // conditional to determine which intent launched activity
-        if(iRequest.equals("From_MFragment"))
+        if(iRequest.equals("From_LongPress"))
         {
             Log.d(TAG, "Sending information to Map Fragment");
 
