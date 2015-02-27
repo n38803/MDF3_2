@@ -44,6 +44,8 @@ public class AddFragment extends Fragment {
     public TextView inputTitle;
     public TextView inputDetails;
     public String inputImageName;
+    public Double longitude;
+    public Double latitude;
     //public ImageView inputImage;
 
     Button save;
@@ -201,6 +203,14 @@ public class AddFragment extends Fragment {
 
         // assign intent extra to string
         String iRequest = aIntent.getExtras().getString("Add");
+        longitude = aIntent.getExtras().getDouble("Longitude");
+        latitude = aIntent.getExtras().getDouble("Latitude");
+
+        String mLong = Double.toString(longitude);
+        String mLat = Double.toString(latitude);
+
+        Log.e(TAG, "Long: " + mLong + " // Lat: " + mLat);
+
 
         // conditional to determine which intent launched activity
         if(iRequest.equals("From_LongPress"))
@@ -210,6 +220,8 @@ public class AddFragment extends Fragment {
             aIntent.putExtra("markerTitle", aTitle);
             aIntent.putExtra("markerDetails", aTitle);
             aIntent.putExtra("markerImage", inputImageName);
+            aIntent.putExtra("markerLong", mLong);
+            aIntent.putExtra("markerLat", mLat);
             aIntent.putExtra("action", "add");
             getActivity().setResult(getActivity().RESULT_OK, aIntent);
         }

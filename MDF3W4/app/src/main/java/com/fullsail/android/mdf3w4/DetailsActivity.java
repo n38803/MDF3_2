@@ -40,18 +40,20 @@ public class DetailsActivity extends Activity {
         //mLocation = (LocationClass) dIntent.getSerializableExtra(EXTRA_ITEM);
 
 
-        // assign intent extra to string
-        //dTitle = dIntent.getExtras().getString("markerTitle");
 
-        // assign textview references & set textviews
-        //TextView tv = (TextView) findViewById(R.id.title);
-        //tv.setText(dTitle);
+        dTitle = dIntent.getStringExtra("Title");
+        TextView tv = (TextView) findViewById(R.id.title);
+        tv.setText(dTitle);
 
-        if (mLocation == null) {
+        //tv = (TextView) findViewById(R.id.details);
+        //tv.setText(mLocation.getDetail());
+
+
+        /*if (mLocation == null) {
             finish();
             return;
         }
-
+        */
 
 
 

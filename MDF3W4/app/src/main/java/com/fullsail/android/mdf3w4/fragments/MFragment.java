@@ -45,6 +45,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class MFragment extends MapFragment implements OnInfoWindowClickListener, GoogleMap.OnMapLongClickListener, LocationListener {
@@ -56,7 +57,11 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
     private final String saveFile = "MDF3W4.txt";
 
-    private ArrayList<LocationClass> mLocationList;
+
+    private ArrayList<LocationClass> mLocationList = new ArrayList<LocationClass>();
+    private HashMap<Marker, LocationClass> mHashMap;
+
+
 
     GoogleMap mMap;
     LocationManager locMgr;
@@ -71,17 +76,21 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // verify whether or not there is a saved instance of coordinates
-        readFile();
+
+
+
 
         // TODO- GRAB CURRENT LOCATION
         locMgr = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
 
         // create location object
-        mLocationList = new ArrayList<LocationClass>();
+        //mLocationList = new ArrayList<LocationClass>();
 
         // create map object
         mMap = getMap();
+
+        // verify whether or not there is a saved instance of coordinates
+        readFile();
 
         // verify object exists
         if (mMap != null){
@@ -89,13 +98,15 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
             //currentPosition = (new LatLng(currentLat, currentLng));
 
             // zoom into the map
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(28.590647,-81.304510), 17));
+            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(28.590647,-81.304510), 50));
 
             // statically add markers to map
-            mMap.addMarker(new MarkerOptions().position(new LatLng(28.590647,-81.304510)).title("MDVBS Faculty Offices"));
-            mMap.addMarker(new MarkerOptions().position(new LatLng(28.591748,-81.305910)).title("Crispers"));
-            mMap.addMarker(new MarkerOptions().position(new LatLng(28.595842,-81.304188)).title("Full Sail Live"));
-            mMap.addMarker(new MarkerOptions().position(new LatLng(28.596591,-81.301302)).title("Advising"));
+            //mMap.addMarker(new MarkerOptions().position(new LatLng(28.590647,-81.304510)).title("MDVBS Faculty Offices"));
+            //mMap.addMarker(new MarkerOptions().position(new LatLng(28.591748,-81.305910)).title("Crispers"));
+            //mMap.addMarker(new MarkerOptions().position(new LatLng(28.595842,-81.304188)).title("Full Sail Live"));
+            //mMap.addMarker(new MarkerOptions().position(new LatLng(28.596591,-81.301302)).title("Advising"));
+
+            createMarkers(mLocationList);
 
             mMap.setInfoWindowAdapter(new MarkerAdapter());
             mMap.setOnInfoWindowClickListener(this);
@@ -111,6 +122,26 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
     }
 
+    private void createMarkers(ArrayList<LocationClass> locations)
+    {
+        mMap = getMap();
+        if(locations.size() > 0)
+        {
+            for (LocationClass location : locations)
+            {
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(location.getLat(), location.getLong()))
+                        .title(location.getTitle()));
+
+                Log.d(TAG, "Title: " + location.getTitle() + "n/Lat: " + location.getLat() + "n/Long: " + location.getLong());
+            }
+        }else
+        {
+            Log.e(TAG, "CreateMarkers not initiated");
+        }
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -119,10 +150,15 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
         if(requestCode == ADDREQUEST && resultCode == getActivity().RESULT_OK) {
             String rTitle = data.getStringExtra("markerTitle");
             String rDetails = data.getStringExtra("markerDetails");
+            String rLong = data.getStringExtra("markerLong");
+            String rLat = data.getStringExtra("markerLat");
             String rImage = data.getStringExtra("markerImage");
             String action = data.getStringExtra("action");
 
-            mLocationList.add(new LocationClass(rTitle, rDetails, mPosition, rImage));
+            Double longitude = Double.parseDouble(rLong);
+            Double latitude = Double.parseDouble(rLat);
+
+            mLocationList.add(new LocationClass(rTitle, rDetails, latitude, longitude));
 
 
             //MainListFragment nf = (MainListFragment) getFragmentManager().findFragmentById(R.id.container);
@@ -134,7 +170,7 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
                 Toast.makeText(getActivity().getApplicationContext(), "Marker added for: " + rTitle, Toast.LENGTH_LONG).show();
 
                 // todo- set coordinates to be dynamic
-                mMap.addMarker(new MarkerOptions().position(mPosition).title(rTitle));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(rTitle));
 
 
 
@@ -155,8 +191,11 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
+                        // TODO - CALL OBJECT LOCATION BASED ON TITLE STRING
+
                         Intent detailIntent = new Intent(getActivity().getApplicationContext(), DetailsActivity.class);
-                        detailIntent.putExtra(DetailsActivity.EXTRA_ITEM, "TESTTTT");
+                        //detailIntent.putExtra(DetailsActivity.EXTRA_ITEM, mLocationList.get(0));
+                        detailIntent.putExtra("Title", marker.getTitle());
                         startActivity(detailIntent);
 
 
@@ -186,12 +225,14 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
                     public void onClick(DialogInterface dialog, int which) {
                         //mMap.addMarker(new MarkerOptions().position(location).title("New Marker"));
 
-                        mPosition = location;
+                        //mPosition = location;
                         Intent addIntent = new Intent(getActivity().getApplicationContext(), AddActivity.class);
                         addIntent.putExtra("Add", "From_LongPress");
+                        addIntent.putExtra("Latitude", location.latitude);
+                        addIntent.putExtra("Longitude", location.longitude);
                         startActivityForResult(addIntent, ADDREQUEST);
 
-                        Log.i(TAG, "To AddActivity from MFragment: " + mPosition);
+                        Log.i(TAG, "To AddActivity from MFragment: " + location.longitude + " // " + location.latitude);
                     }
                 })
                 .show();
@@ -243,6 +284,11 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
         }
     }
 
+
+    public ArrayList<LocationClass> getArticles() {
+        return mLocationList;
+    }
+
     private void enableGps() {
         if(locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, this);
@@ -277,6 +323,7 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
             FileInputStream fin = getActivity().openFileInput(saveFile);
             ObjectInputStream oin = new ObjectInputStream(fin);
             mLocationList = (ArrayList<LocationClass>) oin.readObject();
+            Log.e(TAG, "Files loaded successfully: " + mHashMap);
             oin.close();
 
         } catch(Exception e) {
@@ -285,9 +332,13 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
             Toast.makeText(getActivity().getApplicationContext(), "No Locations Saved - Please add new location", Toast.LENGTH_LONG).show();
 
             // static population of data
-            mLocationList = new ArrayList<LocationClass>();
-            mLocationList.add(new LocationClass("Test: Equator", "Test Details", (new LatLng(0,0)), "Test Image"));
+            // Initialize the HashMap for Markers and MyMarker object
+            mHashMap = new HashMap<Marker, LocationClass>();
 
+            mLocationList.add(new LocationClass("United States", "This is the USA", Double.parseDouble("33.7266622"), Double.parseDouble("-87.1469829")));
+            mLocationList.add(new LocationClass("England", "The Redcoats are coming!", Double.parseDouble("52.4435047"), Double.parseDouble("-3.4199249")));
+
+            createMarkers(mLocationList);
             writeFile();
         }
     }
