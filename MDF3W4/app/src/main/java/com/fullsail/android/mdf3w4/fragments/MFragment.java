@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -22,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,8 +69,6 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
     GoogleMap mMap;
     LocationManager locMgr;
-    LatLng mPosition;
-    LatLng currentPosition;
     Double currentLat;
     Double currentLng;
 
@@ -228,13 +228,6 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
                                 Log.i(TAG, "To DetailActivity from MFragment: " + mHashMap.get(key).getImage());
                             }
                         })
-                        .setNeutralButton("Remove", new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                marker.remove();
-                            }
-                        })
                         .setNegativeButton("Cancel", null)
                         .show();
     }
@@ -286,18 +279,39 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
     }
 
 
+
     private class MarkerAdapter implements GoogleMap.InfoWindowAdapter {
 
         TextView mText;
+        TextView mDetails;
+        ImageView mImage;
+        String key;
 
         public MarkerAdapter() {
             mText = new TextView(getActivity());
+            mDetails = new TextView(getActivity());
+            mImage = new ImageView(getActivity());
         }
 
         @Override
         public View getInfoContents(Marker marker) {
+
+            key = marker.getTitle();
+
+
+
             // defines what shows up inside the info window
-            mText.setText(marker.getTitle());
+            mText.setTextColor(Color.BLUE);
+            mText.setText(mHashMap.get(key).getTitle() + "\n"
+                    + mHashMap.get(key).getDetail() + "\n\n"
+                    + "Latitude: " + mHashMap.get(key).getLat() + "\n"
+                    + "Longitude: " + mHashMap.get(key).getLong()
+
+            );
+            //mDetails.setText(mHashMap.get(key).getDetail());
+            mImage.setImageBitmap(BitmapFactory.decodeFile(mHashMap.get(key).getImage()));
+
+
             return mText;
         }
 
@@ -306,10 +320,10 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
             // defines what the window background looks like
 
+
             return null;
         }
     }
-
 
     public ArrayList<LocationClass> getArticles() {
         return mLocationList;
@@ -371,7 +385,6 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
             writeFile();
         }
     }
-
 
     // Creates local storage file
     private void writeFile() {

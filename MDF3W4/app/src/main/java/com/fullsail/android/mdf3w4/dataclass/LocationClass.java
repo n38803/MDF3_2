@@ -1,6 +1,7 @@
 package com.fullsail.android.mdf3w4.dataclass;
-
-import com.google.android.gms.maps.model.LatLng;
+/**
+ * Created by shaunthompson on 2/25/15.
+ */
 
 import java.io.Serializable;
 
