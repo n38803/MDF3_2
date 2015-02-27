@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,7 +61,7 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
 
     private ArrayList<LocationClass> mLocationList = new ArrayList<LocationClass>();
-    private HashMap<Marker, LocationClass> mHashMap;
+    private HashMap<String, LocationClass> mHashMap;
 
 
 
@@ -77,11 +79,15 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
         super.onActivityCreated(savedInstanceState);
 
 
+        mHashMap = new HashMap<String, LocationClass>();
+        mLocationList = new ArrayList<LocationClass>();
+
 
 
 
         // TODO- GRAB CURRENT LOCATION
         locMgr = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+        enableGps();
 
         // create location object
         //mLocationList = new ArrayList<LocationClass>();
@@ -95,16 +101,9 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
         // verify object exists
         if (mMap != null){
 
-            //currentPosition = (new LatLng(currentLat, currentLng));
 
             // zoom into the map
-            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(28.590647,-81.304510), 50));
-
-            // statically add markers to map
-            //mMap.addMarker(new MarkerOptions().position(new LatLng(28.590647,-81.304510)).title("MDVBS Faculty Offices"));
-            //mMap.addMarker(new MarkerOptions().position(new LatLng(28.591748,-81.305910)).title("Crispers"));
-            //mMap.addMarker(new MarkerOptions().position(new LatLng(28.595842,-81.304188)).title("Full Sail Live"));
-            //mMap.addMarker(new MarkerOptions().position(new LatLng(28.596591,-81.301302)).title("Advising"));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLat, currentLng), 17));
 
             createMarkers(mLocationList);
 
@@ -120,12 +119,33 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
             Log.e(TAG, "Map = Null!");
         }
 
+        Button add = (Button) getActivity().findViewById(R.id.button);
+
+        add.setOnClickListener(
+                new Button.OnClickListener() {
+                    public void onClick(View v) {
+                        // TODO GRAB CURRENT LOCATION AND PUT INTO INTENT
+                        Intent buttonIntent = new Intent(getActivity().getApplicationContext(), AddActivity.class);
+                        buttonIntent.putExtra("Add", "From_Button");
+                        buttonIntent.putExtra("Latitude", currentLat);
+                        buttonIntent.putExtra("Longitude", currentLng);
+                        startActivityForResult(buttonIntent, ADDREQUEST);
+
+                        Log.i(TAG, "To AddActivity from MFragment Button: ");
+
+                    }
+                }
+        );
+
     }
 
     private void createMarkers(ArrayList<LocationClass> locations)
     {
         mMap = getMap();
-        if(locations.size() > 0)
+        //mHashMap = new HashMap<String, LocationClass>();
+
+
+        for(int i=0;i<locations.size();i++)
         {
             for (LocationClass location : locations)
             {
@@ -133,12 +153,10 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
                 mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(location.getLat(), location.getLong()))
                         .title(location.getTitle()));
+                mHashMap.put(location.getTitle(), location);
 
                 Log.d(TAG, "Title: " + location.getTitle() + "n/Lat: " + location.getLat() + "n/Long: " + location.getLong());
             }
-        }else
-        {
-            Log.e(TAG, "CreateMarkers not initiated");
         }
     }
 
@@ -158,21 +176,23 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
             Double longitude = Double.parseDouble(rLong);
             Double latitude = Double.parseDouble(rLat);
 
-            mLocationList.add(new LocationClass(rTitle, rDetails, latitude, longitude));
+            mLocationList.add(new LocationClass(rTitle, rDetails, latitude, longitude, rImage));
+
 
 
             //MainListFragment nf = (MainListFragment) getFragmentManager().findFragmentById(R.id.container);
             //nf.updateListData();
 
-            writeFile();
+
 
             if (action.equals("add")) {
                 Toast.makeText(getActivity().getApplicationContext(), "Marker added for: " + rTitle, Toast.LENGTH_LONG).show();
 
                 // todo- set coordinates to be dynamic
-                mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(rTitle));
+                //mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(rTitle));
 
-
+                writeFile();
+                createMarkers(mLocationList);
 
             }
         }
@@ -181,36 +201,42 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
     @Override
     public void onInfoWindowClick(final Marker marker) {
+        String key = marker.getTitle();
+        Log.e(TAG, "KEY: " + key);
+
         new AlertDialog.Builder(getActivity())
-                .setTitle(marker.getTitle())
-
+                .setTitle(mHashMap.get(key).getTitle())
                 //todo - set message to be dynamic
-                .setMessage("MAKE THIS DYNAMIC")
-                .setPositiveButton("Details", new DialogInterface.OnClickListener() {
+                .setMessage(mHashMap.get(key).getDetail())
+                        .setPositiveButton("Details", new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        // TODO - CALL OBJECT LOCATION BASED ON TITLE STRING
+                                // TODO - CALL OBJECT LOCATION BASED ON TITLE STRING
 
-                        Intent detailIntent = new Intent(getActivity().getApplicationContext(), DetailsActivity.class);
-                        //detailIntent.putExtra(DetailsActivity.EXTRA_ITEM, mLocationList.get(0));
-                        detailIntent.putExtra("Title", marker.getTitle());
-                        startActivity(detailIntent);
+                                String key = marker.getTitle();
+
+                                Intent detailIntent = new Intent(getActivity().getApplicationContext(), DetailsActivity.class);
+                                //detailIntent.putExtra(DetailsActivity.EXTRA_ITEM, mLocationList.get(0));
+                                detailIntent.putExtra("Title", mHashMap.get(key).getTitle());
+                                detailIntent.putExtra("Details", mHashMap.get(key).getDetail());
+                                detailIntent.putExtra("Image", mHashMap.get(key).getImage());
+                                startActivity(detailIntent);
 
 
-                        Log.i(TAG, "To DetailActivity from MFragment: " + mPosition);
-                    }
-                })
-                .setNeutralButton("Remove", new DialogInterface.OnClickListener() {
+                                Log.i(TAG, "To DetailActivity from MFragment: " + mHashMap.get(key).getImage());
+                            }
+                        })
+                        .setNeutralButton("Remove", new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        marker.remove();
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                marker.remove();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
     }
 
     @Override
@@ -333,12 +359,15 @@ public class MFragment extends MapFragment implements OnInfoWindowClickListener,
 
             // static population of data
             // Initialize the HashMap for Markers and MyMarker object
-            mHashMap = new HashMap<Marker, LocationClass>();
 
-            mLocationList.add(new LocationClass("United States", "This is the USA", Double.parseDouble("33.7266622"), Double.parseDouble("-87.1469829")));
-            mLocationList.add(new LocationClass("England", "The Redcoats are coming!", Double.parseDouble("52.4435047"), Double.parseDouble("-3.4199249")));
+
+            //mLocationList.add(new LocationClass("United States", "This is the USA", Double.parseDouble("33.7266622"), Double.parseDouble("-87.1469829"), "No Image"));
+
+            //mLocationList.add(new LocationClass("England", "The Redcoats are coming!", Double.parseDouble("52.4435047"), Double.parseDouble("-3.4199249"), "No Image"));
+
 
             createMarkers(mLocationList);
+
             writeFile();
         }
     }

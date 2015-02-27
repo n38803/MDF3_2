@@ -5,26 +5,11 @@ package com.fullsail.android.mdf3w4;
  */
 
 import android.app.Activity;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
-import com.fullsail.android.mdf3w4.dataclass.LocationClass;
 import com.fullsail.android.mdf3w4.fragments.AddFragment;
-import com.fullsail.android.mdf3w4.fragments.MFragment;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 
 
 

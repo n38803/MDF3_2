@@ -2,6 +2,7 @@ package com.fullsail.android.mdf3w4;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -42,8 +43,16 @@ public class DetailsActivity extends Activity {
 
 
         dTitle = dIntent.getStringExtra("Title");
-        TextView tv = (TextView) findViewById(R.id.title);
-        tv.setText(dTitle);
+        TextView title = (TextView) findViewById(R.id.title);
+        title.setText(dTitle);
+
+        dDetails = dIntent.getStringExtra("Details");
+        TextView details = (TextView) findViewById(R.id.details);
+        details.setText(dDetails);
+
+        dImage = dIntent.getStringExtra("Image");
+        ImageView image = (ImageView) findViewById(R.id.image);
+        image.setImageBitmap(BitmapFactory.decodeFile(dImage));
 
         //tv = (TextView) findViewById(R.id.details);
         //tv.setText(mLocation.getDetail());

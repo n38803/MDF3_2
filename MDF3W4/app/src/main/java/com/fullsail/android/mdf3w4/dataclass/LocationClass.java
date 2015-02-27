@@ -16,13 +16,15 @@ public class LocationClass implements Serializable {
     private String detail;
     private Double lat;
     private Double lon;
+    private String image;
 
     // class constructors
-    public LocationClass (String mTitle, String mDetail, Double mLat, Double mLon) {
+    public LocationClass (String mTitle, String mDetail, Double mLat, Double mLon, String mImage) {
         title=mTitle;
         detail=mDetail;
         lat=mLat;
         lon=mLon;
+        image=mImage;
 
     }
 
@@ -36,9 +38,8 @@ public class LocationClass implements Serializable {
     public Double getLong(){
         return lon;
     }
-
-    public void setTitle(String mTitle)
-    {
-        this.title = title;
+    public String getImage(){
+        return image;
     }
+
 }

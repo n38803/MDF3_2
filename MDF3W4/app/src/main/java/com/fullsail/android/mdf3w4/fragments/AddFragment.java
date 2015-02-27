@@ -54,6 +54,7 @@ public class AddFragment extends Fragment {
     ImageView preview;
     Uri previewUri;
 
+
     private final String saveFile = "MDF3W4.txt";
     private final String TAG = "ADD-FRAGMENT";
 
@@ -62,7 +63,7 @@ public class AddFragment extends Fragment {
 
     public String aTitle;
     public String aDetails;
-    //public String aImage;
+    public String aImage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -132,7 +133,8 @@ public class AddFragment extends Fragment {
                 preview.setImageBitmap(BitmapFactory.decodeFile(previewUri.getPath()));
                 addImageToGallery(previewUri);
 
-                Log.i(TAG, "Picture Captured");
+                aImage = previewUri.getPath().toString();
+                Log.i(TAG, "Picture Captured: " + previewUri.getPath().toString());
             } else {
                 Log.e(TAG, "Picture Canceled");
                 preview.setImageBitmap((Bitmap)data.getParcelableExtra("data"));
@@ -215,11 +217,25 @@ public class AddFragment extends Fragment {
         // conditional to determine which intent launched activity
         if(iRequest.equals("From_LongPress"))
         {
-            Log.d(TAG, "Sending information to Map Fragment");
+            Log.d(TAG, "Sending information to Map Fragment from LongPress");
 
             aIntent.putExtra("markerTitle", aTitle);
-            aIntent.putExtra("markerDetails", aTitle);
-            aIntent.putExtra("markerImage", inputImageName);
+            aIntent.putExtra("markerDetails", aDetails);
+            aIntent.putExtra("markerImage", aImage);
+            aIntent.putExtra("markerLong", mLong);
+            aIntent.putExtra("markerLat", mLat);
+            aIntent.putExtra("action", "add");
+            getActivity().setResult(getActivity().RESULT_OK, aIntent);
+        }
+        else if(iRequest.equals("From_Button"))
+        {
+            Log.d(TAG, "Sending information to Map Fragment from Button");
+
+            // TODO - TRANSMIT CURRENT LOCATION INFORMATION BACK
+
+            aIntent.putExtra("markerTitle", aTitle);
+            aIntent.putExtra("markerDetails", aDetails);
+            aIntent.putExtra("markerImage", aImage);
             aIntent.putExtra("markerLong", mLong);
             aIntent.putExtra("markerLat", mLat);
             aIntent.putExtra("action", "add");
